@@ -19,11 +19,13 @@ class Driver:
     @staticmethod
     def perform_get_skeets(client: Client):
         latest = []
+        id = 0
         # try:
-        posts = client.app.bsky.feed.post.list(client.me.did, limit=100)
+        posts = client.app.bsky.feed.post.list(client.me.did, limit=10)
         for uri, post in posts.records.items():
             print("retrieving post - uri : " + uri)
-            latest.append({'txt': post.text, 'time': post.created_at, 'uri': uri})
+            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri})
+            id = id + 1
         # except Exception as e: print(e)
         return latest
 
