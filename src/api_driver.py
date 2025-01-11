@@ -24,7 +24,8 @@ class Driver:
         posts = client.app.bsky.feed.post.list(client.me.did, limit=10)
         for uri, post in posts.records.items():
             print("retrieving post - uri : " + uri)
-            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri})
+            likes = Driver().find_skeet_likes(client, uri)
+            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes}) #post.likes_count})
             id = id + 1
         # except Exception as e: print(e)
         return latest
