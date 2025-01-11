@@ -32,7 +32,7 @@ def get_skeet_data_from_api():
     try:
         latest = Driver().perform_get_skeets(client)
         data = json.dumps(latest)
-        return jsonify(data)
+        return jsonify(latest)
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500 # Return error message with 500 status code
 
