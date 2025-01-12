@@ -21,7 +21,7 @@ class Driver:
         latest = []
         id = 0
         # try:
-        posts = client.app.bsky.feed.post.list(client.me.did, limit=10)
+        posts = client.app.bsky.feed.post.list(client.me.did, limit=15)
         for uri, post in posts.records.items():
             print("retrieving post - uri : " + uri)
             likes = Driver().find_skeet_likes(client, uri)
