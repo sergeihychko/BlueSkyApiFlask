@@ -50,14 +50,14 @@ def delete_skeet(id: str):
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
-@app.route('/skeet/delete', methods=['POST'])
-def handle_post():
+@app.route('/skeet/delete/', methods=['GET'])
+def delete_skeet_by_get():
     # Access parameters from the request body (form-encoded data)
-    id = request.form.get('param1')
+    uri_id = request.args.get('uri_id')
     # Process the parameters
     try:
-        print("Deleting the post at the uri : " + str(id))
-        Driver().delete_skeet(client, str(id))
+        print("Deleting the post at the uri : " + str(uri_id))
+        Driver().delete_skeet(client, str(uri_id))
         return jsonify({'message': 'Item deleted'}), 200
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
