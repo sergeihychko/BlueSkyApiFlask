@@ -40,7 +40,7 @@ def get_skeet_data_from_api():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
-@app.route('/skeet/data/', methods=['GET'])
+@app.route('/skeet/range/', methods=['GET'])
 def get_skeet_data_from_api_withdate():
     from_date = request.args.get('from_date', 'Unknown')
     until_date = request.args.get('until_date', 'Unknown')
