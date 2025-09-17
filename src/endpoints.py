@@ -40,10 +40,21 @@ def get_skeet_data_from_api():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/data/', methods=['GET'])
+def get_skeet_data_from_api_withdate():
+    from_date = request.args.get('from_date', 'Unknown')
+    until_date = request.args.get('until_date', 'Unknown')
+    try:
+        latest = Driver().perform_get_skeets_from(client, from_date, until_date)
+        data = json.dumps(latest)
+        return jsonify(latest)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 @app.route('/skeet/inactive', methods=['GET'])
 def get_inactive_skeet_data_from_api():
     try:
-        limit = 20
+        limit = 50
         latest = Driver().perform_get_inactive_skeets(client, limit)
         data = json.dumps(latest)
         return jsonify(latest)

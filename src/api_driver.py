@@ -1,8 +1,13 @@
+from keyword import kwlist
 
 from atproto import AtUri, models
 from atproto_client import Client
 import asyncio
+
+from atproto_client.models.string_formats import DateTime
+
 from profile import ProfileData
+from datetime import datetime
 import json
 import os
 import re
@@ -31,6 +36,24 @@ class Driver:
             latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes}) #post.likes_count})
             id = id + 1
         # except Exception as e: print(e)
+        return latest
+
+    @staticmethod
+    def perform_get_skeets_from(client: Client, from_date: str, until_date: str):
+        until_date += "T00:00:00.000Z"
+        from_date += "T00:00:00.000Z"
+        print("from date  : " + str(from_date))
+        print("until date  : " + str(until_date))
+        latest = []
+        id = 0
+        searched_posts = client.app.bsky.feed.search_posts({'q':'a','author': client.me.did,'since': str(from_date), 'until': str(until_date), 'limit': 50})
+        try:
+            for postView in searched_posts.posts:
+                latest.append(
+                     {'id': id, 'txt': postView.record.text, 'time': postView.record.created_at, 'uri': postView.uri, 'likes': postView.like_count})  # post.likes_count})
+                id = id + 1
+        except Exception as e: print(e)
+        print(str(latest))
         return latest
 
     @staticmethod
