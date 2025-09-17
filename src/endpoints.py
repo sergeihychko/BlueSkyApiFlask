@@ -40,6 +40,16 @@ def get_skeet_data_from_api():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/inactive', methods=['GET'])
+def get_inactive_skeet_data_from_api():
+    try:
+        limit = 20
+        latest = Driver().perform_get_inactive_skeets(client, limit)
+        data = json.dumps(latest)
+        return jsonify(latest)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 
 @app.route('/skeet/delete/<id>', methods=['DELETE'])
 def delete_skeet(id: str):
@@ -49,6 +59,21 @@ def delete_skeet(id: str):
         return jsonify({'message': 'Item deleted'}), 200
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
+@app.route('/skeet/nukem/', methods=['GET'])
+def delete_skeet_by_nukem():
+    # Access parameters from the request body (form-encoded data)
+    uri_id = request.args.get('uri_id')
+    # Process the parameters
+    try:
+        limit = 20
+        print("Deleting the last : " + str(limit) + " inactive skeets")
+        latest = Driver().perform_delete_inactive_skeets(client, limit)
+        data = json.dumps(latest)
+        return jsonify({'message': 'Item deleted'}), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 
 @app.route('/skeet/delete/', methods=['GET'])
 def delete_skeet_by_get():

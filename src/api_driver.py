@@ -5,8 +5,11 @@ import asyncio
 from profile import ProfileData
 import json
 import os
+import re
 
 from atproto_client.request import Response
+
+from src.endpoints import delete_skeet
 
 
 #from post_data import PostData
@@ -21,12 +24,58 @@ class Driver:
         latest = []
         id = 0
         # try:
-        posts = client.app.bsky.feed.post.list(client.me.did, limit=15)
+        posts = client.app.bsky.feed.post.list(client.me.did, limit=50)
         for uri, post in posts.records.items():
             print("retrieving post - uri : " + uri)
             likes = Driver().find_skeet_likes(client, uri)
             latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes}) #post.likes_count})
             id = id + 1
+        # except Exception as e: print(e)
+        return latest
+
+    @staticmethod
+    def perform_get_inactive_skeets(client: Client, limit_length: int):
+        latest = []
+        id = 0
+        # try:
+        posts = client.app.bsky.feed.post.list(client.me.did, limit=limit_length)
+        for uri, post in posts.records.items():
+            print("retrieving post - uri : " + uri)
+            l_s = Driver().find_skeet_likes(client, uri)
+            try:
+                likes = int(l_s)
+            except ValueError:
+                likes = -1
+                print('Please enter an integer')
+            if likes == 0:
+                latest.append(
+                    {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes})  # post.likes_count})
+                id = id + 1
+        # except Exception as e: print(e)
+        return latest
+
+    @staticmethod
+    def perform_delete_inactive_skeets(client: Client, limit_length: int):
+        latest = []
+        id = 0
+        # try:
+        print("deleting inactive skeets")
+        posts = client.app.bsky.feed.post.list(client.me.did, limit=limit_length)
+        for uri, post in posts.records.items():
+            print("retrieving post - uri : " + uri)
+            l_s = Driver().find_skeet_likes(client, uri)
+            try:
+                likes = int(l_s)
+            except ValueError:
+                likes = -1
+                print('Please enter an integer')
+            if likes == 0:
+                print(" permanently deleting uri : " + str(uri))
+                latest.append(
+                    {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri,
+                     'likes': likes})  # post.likes_count})
+                id = id + 1
+                delete_skeet(str(uri))
         # except Exception as e: print(e)
         return latest
 
