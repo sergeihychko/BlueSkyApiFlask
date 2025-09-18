@@ -98,6 +98,25 @@ def delete_skeet_by_get():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/follows/', methods=['GET'])
+def get_follows():
+    try:
+        follows = Driver().get_followers(client, account)
+        data = json.dumps(follows)
+        print("get_follows():  returning : " + str(len(follows)) +  " followers")
+        return jsonify(follows)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
+@app.route('/skeet/followed/', methods=['GET'])
+def get_followed():
+    try:
+        followed = Driver().get_followed(client, account)
+        data = json.dumps(followed)
+        print("get_followed():  returning : " + str(len(followed)) +  " followed")
+        return jsonify(followed)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
 if __name__ == '__main__':
     app.run(debug=True)

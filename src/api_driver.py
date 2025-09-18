@@ -40,12 +40,14 @@ class Driver:
 
     @staticmethod
     def perform_get_skeets_from(client: Client, from_date: str, until_date: str):
+        latest = []
+        id = 0
+        if (until_date == 'Unknown' or from_date == 'Unknown'):
+            return latest
         until_date += "T00:00:00.000Z"
         from_date += "T00:00:00.000Z"
         print("from date  : " + str(from_date))
         print("until date  : " + str(until_date))
-        latest = []
-        id = 0
         searched_posts = client.app.bsky.feed.search_posts({'q':'a','author': client.me.did,'since': str(from_date), 'until': str(until_date), 'limit': 50})
         try:
             for postView in searched_posts.posts:
@@ -129,11 +131,10 @@ class Driver:
         like_list = likes['likes']
         for like in like_list:
             count = count + 1
-            print("likes : " + str(like))
         return count
 
     @staticmethod
-    def get_following(client: Client, author: str):
+    def get_follows(client: Client, author: str):
         cursor = None
         following = []
         while True:
@@ -145,6 +146,22 @@ class Driver:
         following_list = []
         for actor in following:
             following_list.append({'name': actor.display_name, 'handle': actor.handle, 'description': actor.description, 'avatar' :actor.avatar})
+        return following_list
+
+    @staticmethod
+    def get_followed(client: Client, author: str):
+        cursor = None
+        following = []
+        while True:
+            fetched = client.app.bsky.graph.get_follows(params={'actor': author, 'cursor': cursor})
+            following = following + fetched.follows
+            if not fetched.cursor:
+                break
+            cursor = fetched.cursor
+        following_list = []
+        for actor in following:
+            following_list.append({'name': actor.display_name, 'handle': actor.handle, 'description': actor.description,
+                                   'avatar': actor.avatar})
         return following_list
 
     @staticmethod
