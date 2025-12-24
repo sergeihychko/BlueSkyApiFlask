@@ -28,12 +28,18 @@ class Driver:
     def perform_get_skeets(client: Client):
         latest = []
         id = 0
+        replies = 0
         # try:
         posts = client.app.bsky.feed.post.list(client.me.did, limit=50)
         for uri, post in posts.records.items():
             print("retrieving post - uri : " + uri)
             likes = Driver().find_skeet_likes(client, uri)
-            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes}) #post.likes_count})
+            print("replies : " + str(post.reply))
+            # if str(post.reply) == 'None':
+            #     replies = 0
+            # else:
+            #     replies = 1
+            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes, 'reply': replies}) #post.likes_count})
             id = id + 1
         # except Exception as e: print(e)
         return latest
@@ -51,8 +57,13 @@ class Driver:
         searched_posts = client.app.bsky.feed.search_posts({'q':'a','author': client.me.did,'since': str(from_date), 'until': str(until_date), 'limit': 50})
         try:
             for postView in searched_posts.posts:
+                replies = 0
+                # if str(postView.reply) == 'None':
+                #     replies = 0
+                # else:
+                #     replies = 1
                 latest.append(
-                     {'id': id, 'txt': postView.record.text, 'time': postView.record.created_at, 'uri': postView.uri, 'likes': postView.like_count})  # post.likes_count})
+                     {'id': id, 'txt': postView.record.text, 'time': postView.record.created_at, 'uri': postView.uri, 'likes': postView.like_count, 'reply': replies})  # post.likes_count})
                 id = id + 1
         except Exception as e: print(e)
         print(str(latest))
@@ -62,19 +73,22 @@ class Driver:
     def perform_get_inactive_skeets(client: Client, limit_length: int):
         latest = []
         id = 0
+        replies = 0
         # try:
         posts = client.app.bsky.feed.post.list(client.me.did, limit=limit_length)
         for uri, post in posts.records.items():
-            print("retrieving post - uri : " + uri)
             l_s = Driver().find_skeet_likes(client, uri)
             try:
                 likes = int(l_s)
             except ValueError:
                 likes = -1
-                print('Please enter an integer')
             if likes == 0:
+                # if str(post.reply) == 'None':
+                #     replies = 0
+                # else:
+                #     replies = 1
                 latest.append(
-                    {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes})  # post.likes_count})
+                    {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes, 'reply': replies})  # post.likes_count})
                 id = id + 1
         # except Exception as e: print(e)
         return latest
@@ -127,11 +141,17 @@ class Driver:
     def find_skeet_likes(client: Client, uri: str):
         count = 0
         print("Calling feed.post.get")
-        likes = client.app.bsky.feed.get_likes(params={'uri': uri, 'limit': 10})
+        likes = client.app.bsky.feed.get_likes(params={'uri': uri, 'limit': 100})
         like_list = likes['likes']
         for like in like_list:
             count = count + 1
         return count
+
+    @staticmethod
+    def get_replied_skeetss(client: Client, author: str):
+        cursor = None
+        replies = []
+        return replies
 
     @staticmethod
     def get_follows(client: Client, author: str):
@@ -215,6 +235,16 @@ class Driver:
         for reply in replies:
             count = count + 1
         return count
+
+    @staticmethod
+    def get_feed_list(client: Client, author: str):
+        feed_list = []
+        #feeds = client.app.bsky.feed.get_author_feed(params={'author': author})
+        feeds = client.app.bsky.feed.get_actor_feeds(params={'actor': author})
+        print("called get feeds list " + str(feeds))
+        for feed in feeds:
+            feed_list.append(feed)
+        return feed_list
 
     @staticmethod
     def get_profile_data(client: Client, profile_uri: str):

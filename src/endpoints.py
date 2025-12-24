@@ -118,5 +118,15 @@ def get_followed():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/feeds/', methods=['GET'])
+def get_feeds():
+    try:
+        feeds = Driver().get_feed_list(client, account)
+        data = json.dumps(feeds)
+        print("get_feeds():  returning : " + str(len(feeds)) + " feeds")
+        return jsonify(feeds)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 if __name__ == '__main__':
     app.run(debug=True)
