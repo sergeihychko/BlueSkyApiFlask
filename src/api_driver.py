@@ -247,6 +247,34 @@ class Driver:
         return feed_list
 
     @staticmethod
+    def get_timeline(client: Client, author: str):
+        timeline = []
+        id = 0
+        # feeds = client.app.bsky.feed.get_author_feed(params={'author': author})
+        feed_list = client.app.bsky.feed.get_timeline(params={'actor': author})
+        print("called get timeline")
+        for feed_view in feed_list.feed:
+            action = 'New Post'
+            if feed_view.reason:
+                action_by = feed_view.reason.by.handle
+                action = f'Reposted by @{action_by}'
+
+            post = feed_view.post.record
+            author = feed_view.post.author
+            likes = feed_view.post.like_count
+            uri = feed_view.post.uri
+            #text = feed_view.post.record.text
+            #created_at = feed_view.post.record.created_at
+
+            print(f'[{action}] {author.display_name}: {post.text}')
+            #timeline.append(post)
+            timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'time': str(post.created_at)})
+            id = id + 1
+
+        print("returning timeline object")
+        return timeline
+
+    @staticmethod
     def get_profile_data(client: Client, profile_uri: str):
         print("retrieving date for profile :" + profile_uri)
         p = client.get_profile(actor=profile_uri)

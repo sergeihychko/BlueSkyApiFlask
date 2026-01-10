@@ -118,6 +118,16 @@ def get_followed():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/timeline/', methods=['GET'])
+def get_timeline():
+    try:
+        timeline = Driver().get_timeline(client, account)
+        data = json.dumps(timeline)
+        print("get_timeline():  returning : timeline")
+        return jsonify(timeline)
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 @app.route('/skeet/feeds/', methods=['GET'])
 def get_feeds():
     try:
