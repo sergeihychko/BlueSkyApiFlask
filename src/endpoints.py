@@ -71,6 +71,15 @@ def delete_skeet(id: str):
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/notifications', methods=['DELETE'])
+def check_notifications():
+    try:
+        print("retrieving notifications")
+        notifications = Driver().check_notifications(client, id)
+        return jsonify(notifications), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 @app.route('/skeet/nukem/', methods=['GET'])
 def delete_skeet_by_nukem():
     # Access parameters from the request body (form-encoded data)

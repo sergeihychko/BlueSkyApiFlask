@@ -125,6 +125,11 @@ class Driver:
         return client.app.bsky.feed.post.get(client.me.did, AtUri.from_str(uri).rkey)
 
     @staticmethod
+    def check_notifications(client: Client):
+        notifications = 0
+        return notifications
+
+    @staticmethod
     def create_skeet(client: Client, skeet_text):
         post_record = models.AppBskyFeedPost.Record(text=skeet_text,
                                                     created_at=client.get_current_time_iso())
