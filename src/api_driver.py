@@ -126,7 +126,19 @@ class Driver:
 
     @staticmethod
     def check_notifications(client: Client):
-        notifications = 0
+        print('Checking notifications...')
+        notifications = []
+        # save the time in UTC when we fetch notifications
+        last_seen_at = client.get_current_time_iso()
+
+        response = client.app.bsky.notification.list_notifications()
+        for notification in response.notifications:
+            if not notification.is_read:
+                print(f'Got new notification! Type: {notification.reason}; from: {notification.author.did}')
+                notifications.append({'author': notification.author.display_name, 'description': notification.reason})
+        # mark notifications as processed (isRead=True) uncomment if we decide to update this later
+        # client.app.bsky.notification.update_seen({'seen_at': last_seen_at})
+        print('Successfully process notification. Last seen at:', last_seen_at)
         return notifications
 
     @staticmethod
@@ -272,7 +284,7 @@ class Driver:
             uri = feed_view.post.uri
             replies = feed_view.post.reply_count
 
-            print(f'[{action}] {author.display_name}: {post.text}')
+            #print(f'[{action}] {author.display_name}: {post.text}')
             #timeline.append(post)
             timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(post.created_at)})
             id = id + 1
@@ -295,7 +307,7 @@ class Driver:
 
     @staticmethod
     def post_with_image(client: Client, post_text: str, image_path: str):
-        print("image path inside post_with_image is : " + image_path)
+        #print("image path inside post_with_image is : " + image_path)
         status = True
         # Post with an image
         try:

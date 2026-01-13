@@ -71,11 +71,11 @@ def delete_skeet(id: str):
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
-@app.route('/skeet/notifications', methods=['DELETE'])
+@app.route('/skeet/notifications', methods=['GET'])
 def check_notifications():
     try:
         print("retrieving notifications")
-        notifications = Driver().check_notifications(client, id)
+        notifications = Driver().check_notifications(client)
         return jsonify(notifications), 200
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
