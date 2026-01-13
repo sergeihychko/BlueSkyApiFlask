@@ -32,14 +32,13 @@ class Driver:
         # try:
         posts = client.app.bsky.feed.post.list(client.me.did, limit=50)
         for uri, post in posts.records.items():
+            #likes=0
+            replies=0
             print("retrieving post - uri : " + uri)
             likes = Driver().find_skeet_likes(client, uri)
-            print("replies : " + str(post.reply))
-            # if str(post.reply) == 'None':
-            #     replies = 0
-            # else:
-            #     replies = 1
-            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes, 'reply': replies}) #post.likes_count})
+            # print("replies : " + str(post.reply))
+
+            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes, 'replies': replies}) #post.likes_count})
             id = id + 1
         # except Exception as e: print(e)
         return latest
@@ -100,21 +99,24 @@ class Driver:
         # try:
         print("deleting inactive skeets")
         posts = client.app.bsky.feed.post.list(client.me.did, limit=limit_length)
-        for uri, post in posts.records.items():
+        for uri, post, likes, replies in posts.records.items():
             print("retrieving post - uri : " + uri)
-            l_s = Driver().find_skeet_likes(client, uri)
-            try:
-                likes = int(l_s)
-            except ValueError:
-                likes = -1
-                print('Please enter an integer')
-            if likes == 0:
-                print(" permanently deleting uri : " + str(uri))
-                latest.append(
-                    {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri,
-                     'likes': likes})  # post.likes_count})
-                id = id + 1
-                delete_skeet(str(uri))
+            #l_s = Driver().find_skeet_likes(client, uri)
+            latest.append(
+                {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri,
+                 'likes': likes, 'replies': replies})  # post.likes_count})
+            # try:
+            #     likes = int(l_s)
+            # except ValueError:
+            #     likes = -1
+            #     print('Please enter an integer')
+            # if likes == 0:
+            #     print(" permanently deleting uri : " + str(uri))
+            #     latest.append(
+            #         {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri,
+            #          'likes': likes})  # post.likes_count})
+            #     id = id + 1
+            #     delete_skeet(str(uri))
         # except Exception as e: print(e)
         return latest
 
@@ -263,12 +265,11 @@ class Driver:
             author = feed_view.post.author
             likes = feed_view.post.like_count
             uri = feed_view.post.uri
-            #text = feed_view.post.record.text
-            #created_at = feed_view.post.record.created_at
+            replies = feed_view.post.reply_count
 
             print(f'[{action}] {author.display_name}: {post.text}')
             #timeline.append(post)
-            timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'time': str(post.created_at)})
+            timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(post.created_at)})
             id = id + 1
 
         print("returning timeline object")
