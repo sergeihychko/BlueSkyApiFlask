@@ -7,7 +7,8 @@ import asyncio
 from atproto_client.models.string_formats import DateTime
 
 from profile import ProfileData
-from datetime import datetime
+from datetime import datetime, timedelta
+from pytz import timezone
 import json
 import os
 import re
@@ -37,8 +38,9 @@ class Driver:
             print("retrieving post - uri : " + uri)
             likes = Driver().find_skeet_likes(client, uri)
             # print("replies : " + str(post.reply))
+            created = post.created_at
 
-            latest.append({'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes, 'replies': replies}) #post.likes_count})
+            latest.append({'id': id, 'txt': post.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': uri, 'likes': likes, 'replies': replies}) #post.likes_count})
             id = id + 1
         # except Exception as e: print(e)
         return latest
@@ -61,8 +63,9 @@ class Driver:
                 #     replies = 0
                 # else:
                 #     replies = 1
+                created = postView.record.created_at
                 latest.append(
-                     {'id': id, 'txt': postView.record.text, 'time': postView.record.created_at, 'uri': postView.uri, 'likes': postView.like_count, 'reply': replies})  # post.likes_count})
+                     {'id': id, 'txt': postView.record.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': postView.uri, 'likes': postView.like_count, 'reply': replies})  # post.likes_count})
                 id = id + 1
         except Exception as e: print(e)
         print(str(latest))
@@ -86,8 +89,9 @@ class Driver:
                 #     replies = 0
                 # else:
                 #     replies = 1
+                created = post.created_at
                 latest.append(
-                    {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri, 'likes': likes, 'reply': replies})  # post.likes_count})
+                    {'id': id, 'txt': post.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': uri, 'likes': likes, 'reply': replies})  # post.likes_count})
                 id = id + 1
         # except Exception as e: print(e)
         return latest
@@ -102,8 +106,9 @@ class Driver:
         for uri, post, likes, replies in posts.records.items():
             print("retrieving post - uri : " + uri)
             #l_s = Driver().find_skeet_likes(client, uri)
+            created = post.created_at
             latest.append(
-                {'id': id, 'txt': post.text, 'time': post.created_at, 'uri': uri,
+                {'id': id, 'txt': post.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': uri,
                  'likes': likes, 'replies': replies})  # post.likes_count})
             # try:
             #     likes = int(l_s)
@@ -283,10 +288,11 @@ class Driver:
             likes = feed_view.post.like_count
             uri = feed_view.post.uri
             replies = feed_view.post.reply_count
+            created = str(post.created_at)
 
             #print(f'[{action}] {author.display_name}: {post.text}')
             #timeline.append(post)
-            timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(post.created_at)})
+            timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(safe_parse_timestamp(created[:19]))})
             id = id + 1
 
         print("returning timeline object")
@@ -318,3 +324,17 @@ class Driver:
             print("Failure posting with image")
             status = False
         return status
+
+def safe_parse_timestamp(timestamp_str):
+    print(timestamp_str)
+
+    try:
+        to_zone = timezone('EST')
+        utc = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%S')
+        eastern = utc.astimezone(to_zone)
+        est_offset = timedelta(hours=-5)
+        est_time = utc+ est_offset
+        return est_time
+    except ValueError as e:
+        print(f"Parsing error: {e}")
+        return None
