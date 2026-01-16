@@ -292,7 +292,7 @@ class Driver:
 
             #print(f'[{action}] {author.display_name}: {post.text}')
             #timeline.append(post)
-            timeline.append({'id': id, 'author': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(safe_parse_timestamp(created[:19]))})
+            timeline.append({'id': id, 'author': author.display_name, 'avatar': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(safe_parse_timestamp(created[:19]))})
             id = id + 1
 
         print("returning timeline object")
