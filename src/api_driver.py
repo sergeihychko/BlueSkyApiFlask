@@ -5,6 +5,7 @@ from atproto_client import Client
 import asyncio
 
 from atproto_client.models.string_formats import DateTime
+from jinja2.nodes import Pos
 
 from profile import ProfileData
 from datetime import datetime, timedelta
@@ -33,14 +34,15 @@ class Driver:
         # try:
         posts = client.app.bsky.feed.post.list(client.me.did, limit=50)
         for uri, post in posts.records.items():
-            #likes=0
-            replies=0
             print("retrieving post - uri : " + uri)
             likes = Driver().find_skeet_likes(client, uri)
+            replies = Driver().find_skeet_replies(client, uri)
+            reposts = Driver().find_skeet_reposts(client, uri)
             # print("replies : " + str(post.reply))
             created = post.created_at
+            #reposts = post.
 
-            latest.append({'id': id, 'txt': post.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': uri, 'likes': likes, 'replies': replies}) #post.likes_count})
+            latest.append({'id': id, 'txt': post.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': uri, 'likes': likes, 'replies': replies, 'reposts': reposts}) #post.likes_count})
             id = id + 1
         # except Exception as e: print(e)
         return latest
@@ -59,13 +61,14 @@ class Driver:
         try:
             for postView in searched_posts.posts:
                 replies = 0
+                reposts = 0
                 # if str(postView.reply) == 'None':
                 #     replies = 0
                 # else:
                 #     replies = 1
                 created = postView.record.created_at
                 latest.append(
-                     {'id': id, 'txt': postView.record.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': postView.uri, 'likes': postView.like_count, 'reply': replies})  # post.likes_count})
+                     {'id': id, 'txt': postView.record.text, 'time': str(safe_parse_timestamp(created[:19])), 'uri': postView.uri, 'likes': postView.like_count, 'replies': replies, "reposts": reposts})  # post.likes_count})
                 id = id + 1
         except Exception as e: print(e)
         print(str(latest))
@@ -168,6 +171,25 @@ class Driver:
         likes = client.app.bsky.feed.get_likes(params={'uri': uri, 'limit': 100})
         like_list = likes['likes']
         for like in like_list:
+            count = count + 1
+        return count
+
+    @staticmethod
+    def find_skeet_reposts(client: Client, uri: str):
+        count = 0
+        print("Calling feed.post.get")
+        posts = client.app.bsky.feed.get_reposted_by(params={'uri': uri, 'limit': 100})
+        #reposts = posts['likes']
+        for poster in posts.reposted_by:
+            count = count + 1
+        return count
+
+    @staticmethod
+    def find_skeet_replies(client: Client, uri: str):
+        count = 0
+        print("Calling feed.post.get")
+        post_thread = client.app.bsky.feed.get_post_thread(params={'uri': uri, 'limit': 100})
+        for reply in post_thread.thread.replies:
             count = count + 1
         return count
 
@@ -288,11 +310,14 @@ class Driver:
             likes = feed_view.post.like_count
             uri = feed_view.post.uri
             replies = feed_view.post.reply_count
+            reposts = feed_view.post.repost_count
+            if not reposts:
+                reposts = 0
             created = str(post.created_at)
 
             #print(f'[{action}] {author.display_name}: {post.text}')
             #timeline.append(post)
-            timeline.append({'id': id, 'author': author.display_name, 'avatar': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(safe_parse_timestamp(created[:19]))})
+            timeline.append({'id': id, 'author': author.display_name, 'avatar': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(safe_parse_timestamp(created[:19])), 'reposts': reposts})
             id = id + 1
 
         print("returning timeline object")
