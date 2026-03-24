@@ -81,7 +81,7 @@ def check_notifications():
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
 @app.route('/skeet/trends', methods=['GET'])
-def check_notifications():
+def get_trends():
     try:
         print("retrieving notifications")
         trends = Driver().get_trends(client)

@@ -346,12 +346,12 @@ class Driver:
         return status
 
     @staticmethod
-    def get_trends(client: Client, author: str):
+    def get_trends(client: Client):
         trend_list = []
-        trend_data = client.app.bsky.unspecced.get_trends(client.me.did)
+        trend_data = client.app.bsky.unspecced.get_trends(params={'limit': 10})
         print("called get feeds list " + str(trend_data))
-        for trends in trend_list:
-            trend_list.append(trends)
+        for trends in trend_data.trends:
+            trend_list.append({'topic': trends.topic, 'description': trends.display_name})
         return trend_list
 
 def safe_parse_timestamp(timestamp_str):
