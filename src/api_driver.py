@@ -285,7 +285,6 @@ class Driver:
     @staticmethod
     def get_feed_list(client: Client, author: str):
         feed_list = []
-        #feeds = client.app.bsky.feed.get_author_feed(params={'author': author})
         feeds = client.app.bsky.feed.get_actor_feeds(params={'actor': author})
         print("called get feeds list " + str(feeds))
         for feed in feeds:
@@ -296,7 +295,6 @@ class Driver:
     def get_timeline(client: Client, author: str):
         timeline = []
         id = 0
-        # feeds = client.app.bsky.feed.get_author_feed(params={'author': author})
         feed_list = client.app.bsky.feed.get_timeline(params={'actor': author})
         print("called get timeline")
         for feed_view in feed_list.feed:
@@ -314,9 +312,6 @@ class Driver:
             if not reposts:
                 reposts = 0
             created = str(post.created_at)
-
-            #print(f'[{action}] {author.display_name}: {post.text}')
-            #timeline.append(post)
             timeline.append({'id': id, 'author': author.display_name, 'avatar': author.avatar, 'txt': str(post.text), 'likes': likes, 'replies': replies, 'time': str(safe_parse_timestamp(created[:19])), 'reposts': reposts})
             id = id + 1
 
@@ -349,6 +344,15 @@ class Driver:
             print("Failure posting with image")
             status = False
         return status
+
+    @staticmethod
+    def get_trends(client: Client, author: str):
+        trend_list = []
+        trend_data = client.app.bsky.unspecced.get_trends(client.me.did)
+        print("called get feeds list " + str(trend_data))
+        for trends in trend_list:
+            trend_list.append(trends)
+        return trend_list
 
 def safe_parse_timestamp(timestamp_str):
     print(timestamp_str)

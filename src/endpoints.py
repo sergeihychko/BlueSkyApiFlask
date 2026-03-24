@@ -80,6 +80,15 @@ def check_notifications():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
 
+@app.route('/skeet/trends', methods=['GET'])
+def check_notifications():
+    try:
+        print("retrieving notifications")
+        trends = Driver().get_trends(client)
+        return jsonify(trends), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500  # Return error message with 500 status code
+
 @app.route('/skeet/nukem/', methods=['GET'])
 def delete_skeet_by_nukem():
     # Access parameters from the request body (form-encoded data)
