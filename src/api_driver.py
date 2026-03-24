@@ -5,6 +5,7 @@ from atproto_client import Client
 import asyncio
 
 from atproto_client.models.string_formats import DateTime
+from ddgs.engines import category
 from jinja2.nodes import Pos
 
 from profile import ProfileData
@@ -351,7 +352,9 @@ class Driver:
         trend_data = client.app.bsky.unspecced.get_trends(params={'limit': 10})
         print("called get feeds list " + str(trend_data))
         for trends in trend_data.trends:
-            trend_list.append({'topic': trends.topic, 'description': trends.display_name})
+            feed_id = ""
+            feed_id = trends.link.split("/profile/trending.bsky.app/feed/", 1)[-1]
+            trend_list.append({'topic': trends.topic, 'description': trends.display_name, 'count': trends.post_count, 'category': trends.category, 'link': feed_id})
         return trend_list
 
 def safe_parse_timestamp(timestamp_str):
